@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Songify</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+  
+    <style type="text/css">
+      body {
+        background: #f4f4f4;
+      }
+
+      .transaction {
+        width: 300px;
+        border: 1px solid #4f4f4f;
+        height: 320px;
+        float: left;
+        
+      }
+      ol > li {
+        /*color: gray;*/
+      }
+
+      .transactionName {
+        text-align: center;
+        background: lightblue;
+        padding: 0;
+        margin: 0;
+        margin-bottom: 10px;
+      }
+
+      .drawConflictingGraph {
+        width: 2000px;
+        height: 500px;
+        position: absolute;
+        top: 350px;
+      }
+      .three-transactions {
+        display: none;
+      }
+      .hidden {
+        display: none;
+      }
+    </style>
+
+  </head>
+
+
+  <body>
+
+        <!-- Draw the schedule with all transactions -->
+        <div style="position: absolute;">
+
+          <% var totalStatements = graph[0][0].totalStatements; %>
+          <% var totalTransaction = graph[0][0].totalTransaction; %>
+
+          <!-- <%= conflictGraph %> -->
+
+            <% var b = 0; %>
+
+            <% for(var i = 1; i <= totalTransaction; i++) {  %>
+
+              <div class="transaction">
+                  <p class="transactionName"> T<%= i %>  </p>
+                  <ol>
+                      
+                      <% var array = graph[i] %>
+
+                        
+
+                          <% for( var j = 1; j <= totalStatements; j++ ) { %>
+
+                            <% var obj = array[b]; %>
+
+                            <% if( obj.statementNum == j ) { %>
+                              <li> <%= obj.operation %>(<%= obj.dataItem %>) </li>
+                            <%  b++; } else { %>
+                              <li></li>
+                            <% } %>
+
+                          <%   if(b >= array.length) { b = 0; break;}  } %>
+                      
+
+                  </ol>
+
+              </div>
+
+            <% } %>
+
+
+          </div>
+          <!-- Ending of drawing schedule -->
+
+
+          <!-- Drawing Conflicting Graph -->
+          <%  
+              var numOfTransactions = conflictGraph.length; var p = 0;
+              var circles = [ {},{ cx : 770, cy : 250, r : 30}, { cx : 1230, cy : 250, r : 30  }, { cx : 1000, cy : 30, r : 30 }, { cx : 1000, cy : 470, r : 30  }, { cx : 770, cy : 470, r : 30  }, { cx : 1230, cy : 470, r : 30  } ];  
+          %>
+
+
+          <div class="drawConflictingGraph two-transactions">
+
+            <svg style=" width: 2000px; height: 1000px;">
+
+                <% if(resultFlag == 1) {%>
+                    <text x="770" y="630" font-family="Verdana" font-size="35">
+                      There is at least one cycle : Not a Conflict Serializable Schedule      
+                    </text>
+                <% } else { %>
+                    <text x="770" y="630" font-family="Verdana" font-size="35">
+                      There is no cycle : Conflict Serializable Schedule      
+                    </text>
+                <% } %>
+                
+
+
+                <!-- to use direction of the edges -->
+                <defs>
+                  <marker id="arrow" markerWidth="10" markerHeight="10" refX="0" refY="3" orient="auto" markerUnits="strokeWidth">
+                    <path d="M<%=p%>,0 L0,6 L9,3 z" fill="#f00" />
+                  </marker>
+                </defs>
+
+
+                <!-- draw all the vertices which represents transactions -->
+                <% for(var i = 1; i <= numOfTransactions ; i++) { %> 
+                  <circle cx="<%= circles[i].cx %>" cy="<%= circles[i].cy %>" r="<%= circles[i].r %>" stroke="green" stroke-width="4" fill="yellow" />
+
+                    <text x="<%= circles[i].cx %>" y="<%= circles[i].cy + circles[i].r + 30 %>" font-family="Verdana" font-size="35">
+                      T<%= i %>
+                    </text>
+
+                <% } %>
+                
+
+
+
+                <!-- draw Edges between Nodes -->
+                <% for( var i = 0; i < numOfTransactions; i++ ) { 
+
+                      for( var j = 0; j < numOfTransactions; j++) { 
+
+                        if( (i != j) && ( conflictGraph[i][j] == 1 )) {
+                            var circle1 = circles[i+1];
+                            var circle2 = circles[j+1];
+                            var x1 = circle1.cx;
+                            var y1 = circle1.cy;
+                            var x2 = circle2.cx;
+                            var y2 = circle2.cy
+                            %>
+                              <line x1="<%=x1%>" y1="<%=y1%>" x2="<%=x2%>" y2="<%=y2%>" style="stroke:rgb(255,0,0);stroke-width:3" marker-end="url(#arrow)"/>
+                            <%
+                        }
+
+                      }
+
+                } %>
+
+            </svg>
+
+          </div>
+ 
+  </body>
+
+</html>
